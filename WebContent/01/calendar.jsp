@@ -20,7 +20,7 @@ if(yearParam != null || mthParam != null) {
 		cal.set(Calendar.MONTH,mthForCal);
 		cal.set(Calendar.DATE,1);
 	}else{
-		response.sendError(500,"올바른 날짜를 입력하세요");
+		response.sendError(400,"올바른 날짜를 입력하세요");
 	}
 }
 int mthTotalDays = cal.getActualMaximum(Calendar.DATE);
@@ -34,7 +34,7 @@ int cellIndex = 0;
        window.onload = function(){
         let clock = document.getElementById('clock');
         let today = document.getElementById('date');
-        setInterval(() => {
+        setInterval(function() {
             let currentDate = new Date();  
             let year = currentDate.getFullYear();
             let mth = currentDate.getMonth();
@@ -53,13 +53,12 @@ int cellIndex = 0;
 <style>
 table {
 	border-collapse: collapse;
-	border: 1px solid black;
 	width: 50%;
 }
 
 tr, td {
 	width : 30px;
-	border: 1px solid black;
+	border-collapse: collaps	e;
 	text-align: center;
 }
 .blank{
@@ -79,6 +78,7 @@ a:link {text-decoration: none; color: white;}
 a:visited {text-decoration: none; color: white;}
 a:active {text-decoration: none; color: white;}
 a:hover {text-decoration: underline; color: red;}
+
 </style>
 </head>
 
@@ -87,7 +87,6 @@ a:hover {text-decoration: underline; color: red;}
 	<div>현재시간 : </div>
 	<div id="date"></div>
 	<div id="clock"></div>
-	
 	<div>선택한 날짜: <%=year+"년 "+mth+"월" %></div>
 	</header>
 	<nav id="sec_nav">
