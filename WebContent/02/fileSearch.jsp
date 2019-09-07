@@ -1,5 +1,4 @@
-<%@page import="java.util.Iterator"%>
-<%@page import="java.util.Map"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -9,39 +8,80 @@
 <title>02/fileSearch.jsp</title>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <style type="text/css">
+   li {
+            margin-top: 10px;
+            margin-right: 10px;
+            padding: 5px 0px 5px 5px;
+        }
 
+        li.dir {
+            cursor: pointer;
+        }
+
+        ul {
+            border: 2px solid black;
+            width: 20%;
+            height: 500px;
+            overflow: auto;
+        }
+
+        ul#srcArea {
+            float: left;
+        }
+
+        form#commandForm {
+            float: left;
+            width: 50%;
+            height: 500px;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+        ul#targetArea {
+            float: right;
+        }
+        .active {
+            border: 2px solid blue;
+        }
 </style>
 </head>
 <body>
 <form id="explorerForm">
-        좌패널 위치 : <input type="text" name="src" id="src" value="" readonly>
-        우패널 위치 : <input type="text" name="target" id="target" value="" readonly>
+	<% 
+	String srcUri = (String)request.getAttribute("srcUri"); 
+	String targetUri = (String)request.getAttribute("targetUri");
+	%>
+        좌패널 위치 : <input type="text" name="src" id="src" value="<%=srcUri %>" readonly="">
+        우패널 위치 : <input type="text" name="target" id="target" value="<%=targetUri %>" readonly="">
     </form>
     <ul id="srcArea">
-    <%
-		Map<String,Map<String,String>> files = (Map)request.getAttribute("srcData");
-    	if(files!=null){
-			for(Map.Entry<String, Map<String, String>> tmp : files.entrySet()){
-				String realPath = tmp.getKey();
-				Map<String,String> fileMap = tmp.getValue();
-				for(Map.Entry<String,String> tmp2: fileMap.entrySet()){
-					String key = tmp2.getKey();
-				%>
-<%--         <li class="dir" id=<%=key%>><%=key%></li> --%>
+    <%	
+//     	String srcParentPath = (String)request.getAttribute("srcParentPath");
+    	if(!srcUri.equals("/")){
+    	%>
+	        <li class="dir" id="upper">..</li>
+		<%    		
+    	}
+		String[] srcFiles = (String[]) request.getAttribute("srcFiles");
+		if(srcFiles!=null){
+			for(String tmp : srcFiles){
+				if(tmp.contains(".")){			
+		%>
+		<li class="file" id=<%=tmp %>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length()) %></li>
+        	<%}else{ %>
+        <li class="dir" id=<%=tmp%>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length())%></li>
         
-		</ul>
-		<%
-				}
-    		}
-    	}%>
+	<%    		}
+			}
+		}%>
     </ul>
     <form action="?" id="commandForm" method="post">
         <p>
-            좌패널 위치 : <input type="text" name="src" id="src" value="" readonly>
-            우패널 위치 : <input type="text" name="target" id="target" value="" readonly>
+            좌패널 위치 : <input type="text" name="src" id="src" value="<%=srcUri %>" readonly="">
+            우패널 위치 : <input type="text" name="target" id="target" value="<%=targetUri %>" readonly="" >
         </p>
         <p>
-            선택한 파일 : <input type="text" name="srcFile" id="srcFile" value="" required readonly>
+            선택한 파일 : <input type="text" name="srcFile" id="srcFile" value="" required="">
         </p>
         <p>
             <label><input type="radio" name="command" value="COPY" required="">복사</label>
@@ -50,8 +90,28 @@
             <input type="submit" value="명령 수행">
         </p>
     </form>
-    <ul id="targetArea">
-<%--         <li class="dir" id=<%= %>><%= %></li> --%>
+    <ul id="targetArea"> 
+    <%	
+//     	String targetParentPath = (String)request.getAttribute("targetParentPath");
+    	if(!targetUri.equals("/")){
+    	%>
+	        <li class="dir" id="upper">..</li>
+		<%    		
+    	}
+    	String[] targetFiles = (String[]) request.getAttribute("targetFiles");
+    	if(targetFiles!=null){
+    		for(String tmp:targetFiles){
+    			if(tmp.contains(".")){			
+		%>
+		<li class="file" id=<%=tmp %>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length()) %></li>
+       		 <%}else{ %>
+        <li class="dir" id=<%=tmp%>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length())%></li>
+        
+		<% 
+       			}
+			}
+		}
+		%>
     </ul>
     <script type="text/javascript">
         var explorerForm = $("#explorerForm");
@@ -69,7 +129,7 @@
                 srcFile.val("");
             }
         });
-        $("ul").on("dblclick", "li", function () {
+        $("ul").on("dblclick", "li.dir", function () {
             var thisId = $(this).prop("id");
             var parentId = $(this).parent().prop("id");
             if (parentId == "srcArea") {
