@@ -2,13 +2,8 @@ package kr.or.ddit;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -25,60 +20,88 @@ import kr.or.ddit.enums.CommandType;
 @WebServlet("/FileSearchService")
 public class FileSearchServlet extends HttpServlet {
 	private ServletContext application;
-	private String view = "/02/fileSearch.jsp";
-	private String srcUri = "/";
-	private String targetUri = "/";
-	private File srcFilefolder;
-	private File targetFilefolder;
-	private String srcParentPath;
-	private String targetParentPath;
-	String targetPath;
-	String srcPath;
+	private final String VIEW_PATH = "/02/fileSearch.jsp";
+	private String srcUri;
+	private String targetUri;
+	private String topUri;
+	private String topPath;
+	private File srcFileFolder;
+	private File targetFileFolder;
+	private String targetPath;
+	private String srcPath;
+	private List<String> srcFiles;
+	private List<String> targetFiles;
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		application = getServletContext();
+		srcUri = "/";
+		targetUri = "/";
+		srcPath = application.getRealPath(srcUri);
+		targetPath = application.getRealPath(targetUri);
+		srcFileFolder = new File(srcPath);
+		targetFileFolder = new File(targetPath);
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		application = getServletContext();
+		topUri = application.getContextPath();
+		topPath = application.getResource("/").toString();
 		String src = request.getParameter("src");
 		String target = request.getParameter("target");
-	
-		if(src!=null) {
-			 if(src.equals("upper")) {
-				 	srcPath = application.getRealPath("srcUri");
-				 	srcFilefolder = new File(srcPath).getParentFile();
-				 	System.out.println(srcFilefolder);
-				}else {
-					srcUri = src;
-					srcPath = application.getRealPath(srcUri);
-					srcFilefolder = new File(srcPath);
+		srcFiles = new ArrayList<String>();
+		targetFiles = new ArrayList<>();
+		if(src != null) {
+			if(src.equals("upper")) {
+				srcFileFolder = srcFileFolder.getParentFile();
+				if(srcFileFolder.toURI().toString().equals(topPath)) {
+				srcUri="/";
 				}
-		}else {
-			srcPath = application.getRealPath(srcUri);
-			srcFilefolder = new File(srcPath);
-		}
-		if(target!=null) {
-			if(target.equals("upper")) {
-				targetPath = application.getRealPath("targetUri");
-				targetFilefolder = new File(targetPath).getParentFile(); 
-			}else {
-				targetUri = target;
-				targetPath = application.getRealPath(targetUri);
-				targetFilefolder = new File(targetPath);
+			}else if(StringUtils.isNotBlank(src)) {
+				srcUri = src;
+				srcPath = application.getRealPath(srcUri);
+				srcFileFolder = new File(srcPath);
 			}
-		}else {
-			targetPath = application.getRealPath(targetUri);
-			targetFilefolder = new File(targetPath);
+		}
+		File[] srcList = srcFileFolder.listFiles();
+		for(File temp :  srcList) {
+			String tempUri = temp.toURI().toString();
+			if(temp.isDirectory()) {
+				tempUri = tempUri.substring(tempUri.lastIndexOf(topUri)+topUri.length(),tempUri.length()-1);
+			}else if(temp.isFile()) {
+				tempUri = tempUri.substring(tempUri.lastIndexOf(topUri)+topUri.length(),tempUri.length());
+			}
+			srcFiles.add(tempUri);
 		}
 		
-		System.out.println(srcFilefolder.getPath());
-		String[] srcFiles = srcFilefolder.list(); 
-		
-		String[] targetFiles = targetFilefolder.list();
-		request.setAttribute("srcParentPath", srcParentPath);
-		request.setAttribute("targetParentPath", targetParentPath);
+		if(target != null) {
+			if(target.equals("upper")) {
+				targetFileFolder = targetFileFolder.getParentFile();
+				if(targetFileFolder.toURI().toString().equals(topPath)) {
+					targetUri="/";
+				}
+			}else if(StringUtils.isNotBlank(target)) {
+				targetUri =target;
+				targetPath = application.getRealPath(targetUri);
+				targetFileFolder = new File(targetPath);
+			}
+		}
+		File[] targetList = targetFileFolder.listFiles();
+		for(File temp :  targetList) {
+			String tempUri = temp.toURI().toString();
+			if(temp.isDirectory()) {
+				tempUri = tempUri.substring(tempUri.lastIndexOf(topUri)+topUri.length(),tempUri.length()-1);
+			}else if(temp.isFile()) {
+				tempUri = tempUri.substring(tempUri.lastIndexOf(topUri)+topUri.length(),tempUri.length());
+			}
+			targetFiles.add(tempUri);
+		}
 		request.setAttribute("srcUri",srcUri);
 		request.setAttribute("targetUri",targetUri);
 		request.setAttribute("srcFiles", srcFiles);
 		request.setAttribute("targetFiles", targetFiles);
-		request.getRequestDispatcher(view).forward(request, response);
+		request.getRequestDispatcher(VIEW_PATH).forward(request, response);
 	}
 	
 	@Override
@@ -115,6 +138,6 @@ public class FileSearchServlet extends HttpServlet {
 				response.sendError(status);
 			}
 		}
-		
+	
 	}
 }

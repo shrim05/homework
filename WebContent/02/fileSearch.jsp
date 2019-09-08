@@ -1,3 +1,4 @@
+<%@page import="java.util.List"%>
 <%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
@@ -51,23 +52,22 @@
 	String srcUri = (String)request.getAttribute("srcUri"); 
 	String targetUri = (String)request.getAttribute("targetUri");
 	%>
-        좌패널 위치 : <input type="text" name="src" id="src" value="<%=srcUri %>" readonly="">
-        우패널 위치 : <input type="text" name="target" id="target" value="<%=targetUri %>" readonly="">
+        <input type="hidden" name="src" id="src" value="<%=srcUri %>" readonly="" >
+        <input type="hidden" name="target" id="target" value="<%=targetUri %>" readonly="" >
     </form>
     <ul id="srcArea">
     <%	
-//     	String srcParentPath = (String)request.getAttribute("srcParentPath");
     	if(!srcUri.equals("/")){
     	%>
 	        <li class="dir" id="upper">..</li>
 		<%    		
     	}
-		String[] srcFiles = (String[]) request.getAttribute("srcFiles");
+		List<String> srcFiles = (List<String>) request.getAttribute("srcFiles");
 		if(srcFiles!=null){
 			for(String tmp : srcFiles){
 				if(tmp.contains(".")){			
 		%>
-		<li class="file" id=<%=tmp %>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length()) %></li>
+		<li class="file" id=<%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length()) %>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length()) %></li>
         	<%}else{ %>
         <li class="dir" id=<%=tmp%>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length())%></li>
         
@@ -77,8 +77,8 @@
     </ul>
     <form action="?" id="commandForm" method="post">
         <p>
-            좌패널 위치 : <input type="text" name="src" id="src" value="<%=srcUri %>" readonly="">
-            우패널 위치 : <input type="text" name="target" id="target" value="<%=targetUri %>" readonly="" >
+            <input type="hidden" name="src" id="src" value="<%=srcUri %>" readonly="">
+            <input type="hidden" name="target" id="target" value="<%=targetUri %>" readonly="" >
         </p>
         <p>
             선택한 파일 : <input type="text" name="srcFile" id="srcFile" value="" required="">
@@ -92,18 +92,17 @@
     </form>
     <ul id="targetArea"> 
     <%	
-//     	String targetParentPath = (String)request.getAttribute("targetParentPath");
     	if(!targetUri.equals("/")){
     	%>
 	        <li class="dir" id="upper">..</li>
 		<%    		
     	}
-    	String[] targetFiles = (String[]) request.getAttribute("targetFiles");
+    	List<String> targetFiles = (List<String>) request.getAttribute("targetFiles");
     	if(targetFiles!=null){
     		for(String tmp:targetFiles){
     			if(tmp.contains(".")){			
 		%>
-		<li class="file" id=<%=tmp %>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length()) %></li>
+		<li class="file" id=<%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length())%>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length()) %></li>
        		 <%}else{ %>
         <li class="dir" id=<%=tmp%>><%=tmp.substring(tmp.lastIndexOf("/")+1,tmp.length())%></li>
         
