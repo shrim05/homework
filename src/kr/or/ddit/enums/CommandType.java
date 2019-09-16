@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 public enum CommandType {
 	COPY((srcFiles, targetFiles)->{
 		File target =  new File(targetFiles, srcFiles.getName());
-		System.out.println("test");
 		FileUtils.copyFile(srcFiles, target);
 	}), MOVE((srcFiles, targetFiles)->{
 		File target = new File(targetFiles, srcFiles.getName());
