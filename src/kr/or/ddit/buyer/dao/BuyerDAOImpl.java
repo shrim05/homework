@@ -175,7 +175,7 @@ public class BuyerDAOImpl implements IBuyerDAO{
 			Method voGetter = null;
 			Method voSetter = null;
 			Method rsGetter = rs.getClass().getDeclaredMethod("getString", String.class);
-			while(rs.next()) {
+			if(rs.next()) {
 				buyer = new BuyerVO();
 				for(Field tmp:fds) {
 					String name = tmp.getName();
@@ -230,6 +230,7 @@ public class BuyerDAOImpl implements IBuyerDAO{
 					voGetter = pd.getReadMethod();
 					pstmtSetter.invoke(pstmt,idx++,voGetter.invoke(bv));
 				}
+				pstmt.setString(15, bv.getBuyer_id());
 				result = pstmt.executeUpdate();
 			} catch (SQLException | IntrospectionException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();

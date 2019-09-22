@@ -6,6 +6,7 @@ import kr.or.ddit.buyer.dao.BuyerDAOImpl;
 import kr.or.ddit.buyer.dao.IBuyerDAO;
 import kr.or.ddit.buyer.vo.BuyerVO;
 import kr.or.ddit.enums.ServiceResult;
+import kr.or.ddit.exception.IdNotFoundException;
 
 public class BuyerServiceImpl implements IBuyerService{
 	
@@ -32,8 +33,11 @@ public class BuyerServiceImpl implements IBuyerService{
 
 	@Override
 	public BuyerVO retrieveBuyer(BuyerVO bv) {
-		return dao.selectBuyer(bv);
-		
+		if(bv==null) {
+			throw new IdNotFoundException();
+		}else {
+			return dao.selectBuyer(bv);
+		}
 	}
 
 	@Override
@@ -43,15 +47,30 @@ public class BuyerServiceImpl implements IBuyerService{
 
 	@Override
 	public ServiceResult modifyBuyer(BuyerVO bv) {
-		// TODO Auto-generated method stub
-		return null;
+		if(bv!=null) {
+			int result =dao.updateBuyer(bv);
+			if(result>0) {
+				return ServiceResult.OK;
+			}else {
+				return ServiceResult.FAILED;
+			}
+		}else {
+			return ServiceResult.FAILED;
+		}
 	}
 
 	@Override
 	public ServiceResult removeBuyer(BuyerVO bv) {
-		// TODO Auto-generated method stub
-		return null;
+		if(bv!=null) {
+			int result =dao.deleteBuyer(bv);
+			if(result>0) {
+				return ServiceResult.OK;
+			}else {
+				return ServiceResult.FAILED;
+			}
+		}else {
+			return ServiceResult.FAILED;
+		}
+		
 	}
-	
-
 }
